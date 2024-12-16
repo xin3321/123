@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGS Report to FHIR JSON</title>
+</head>
+<body>
+    <h2>NGS Report Input</h2>
+    
+    <label for="patientId">Patient ID:</label>
+    <input type="text" id="patientId" placeholder="Enter Patient ID" /><br><br>
+    
+    <label for="gene">Gene:</label>
+    <input type="text" id="gene" placeholder="Enter Gene Name" /><br><br>
+    
+    <label for="cdnaChange">cDNA Change:</label>
+    <input type="text" id="cdnaChange" placeholder="Enter cDNA Change" /><br><br>
+    
+    <label for="aminoAcidChange">Amino Acid Change:</label>
+    <input type="text" id="aminoAcidChange" placeholder="Enter Amino Acid Change" /><br><br>
+    
+    <label for="alleleFrequency">Allele Frequency (%):</label>
+    <input type="number" id="alleleFrequency" placeholder="Enter Allele Frequency" /><br><br>
+    
+    <label for="classification">Classification:</label>
+    <input type="text" id="classification" placeholder="Enter Classification" /><br><br>
+    
+    <button onclick="generateJSON()">Generate JSON</button>
+
+    <h3>Generated JSON:</h3>
+    <pre id="jsonOutput"></pre>
+
+    <script>
+        function generateJSON() {
+            const patientId = document.getElementById("patientId").value;
+            const gene = document.getElementById("gene").value;
+            const cdnaChange = document.getElementById("cdnaChange").value;
+            const aminoAcidChange = document.getElementById("aminoAcidChange").value;
+            const alleleFrequency = document.getElementById("alleleFrequency").value;
+            const classification = document.getElementById("classification").value;
+
+            // FHIR JSON structure
+            const fhirJSON = {
+                "resourceType": "Observation",
+                "status": "final",
+                "category": [{
+                    "coding": [{
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                        "code": "laboratory"
+                    }]
+                }],
+                "code": {
+                    "coding": [{
+                        "system": "http://loinc.org",
+                        "code": "48018-6",
+                        "display": "Gene identifier"
+                    }]
+                },
+                "subject": {
+                    "reference": "Patient/" + patientId
+                },
+                "component": [
+                    {
+                        "code": {
+                            "coding": [{
+                                "system": "http://loinc.org",
+                                "code": "48004-6",
+                                "display": "Gene variant"
+                            }]
+                        },
+                        "valueCodeableConcept": {
+                            "coding": [{
+                                "system": "http://varnomen.hgvs.org",
+                                "code": cdnaChange
+                            }]
+                        }
+                    },
+                    {
+                        "code": {
+                            "coding": [{
+                                "system": "http://loinc.org",
+                                "code": "48005-3",
+                                "display": "Amino acid change"
+                            }]
+                        },
+                        "valueCodeableConcept": {
+                            "coding": [{
+                                "system": "https://varnomen.hgvs.org/",
+                                "code": aminoAcidChange
+                            }]
+                        }
+                    },
+                    {
+                        "code": {
+                            "coding": [{
+                                "system": "http://loinc.org",
+                                "code": "81258-6",
+                                "display": "Percentage"
+                            }]
+                        },
+                        "valueQuantity": {
+                            "value": parseFloat(alleleFrequency),
+                            "unit": "%",
+                            "system": "http://unitsofmeasure.org",
+                            "code": "%"
+                        }
+                    },
+                    {
+                        "code": {
+                            "coding": [{
+                                "system": "http://terminology.hl7.org/CodeSystem/observation-value",
+                                "code": classification,
+                                "display": "Classification"
+                            }]
+                        },
+                        "valueCodeableConcept": {
+                            "text": classification
+                        }
+                    }
+                ]
+            };
+
+            // Display the JSON output
+            document.getElementById("jsonOutput").textContent = JSON.stringify(fhirJSON, null, 2);
+        }
+    </script>
+</body>
+</html>
+>
